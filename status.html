@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status do Distribuidor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main: #0B0F19;
+            --glass-bg: rgba(25, 33, 50, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.15), transparent 50%);
+        }
+
+        .status-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 24px auto;
+            font-size: 48px;
+            color: white;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        }
+
+        .icon-success {
+            background: linear-gradient(135deg, #34d399, #059669);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .icon-danger {
+            background: linear-gradient(135deg, #f87171, #dc2626);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        h1 {
+            font-size: 32px;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .status-ativo { color: #34d399; }
+        .status-vencido { color: #f87171; }
+
+        .dist-name {
+            font-size: 20px;
+            margin-bottom: 24px;
+            color: var(--text-main);
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-box span {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .info-box strong {
+            font-size: 16px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-card" id="cardResult" style="display: none;">
+        <div id="iconBox" class="icon-container">
+            <i id="iconSymbol" class="fa-solid fa-check"></i>
+        </div>
+        <h1 id="statusText">Verificando...</h1>
+        <div class="dist-name" id="distName">Nome da Distribuidora</div>
+        
+        <div class="info-box">
+            <span>Data de Vencimento</span>
+            <strong id="distVencimento">--/--/----</strong>
+        </div>
+        
+        <div class="info-box">
+            <span>Dias Restantes</span>
+            <strong id="distDias">--</strong>
+        </div>
+        
+        <div class="footer">
+            <i class="fa-solid fa-shield-check"></i> Verificação Oficial
+        </div>
+    </div>
+
+    <script>
+        // Função para decodificar base64 preservando acentos
+        function b64DecodeUnicode(str) {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const dataParam = urlParams.get('d'); // 'd' will contain the base64 encoded data
+
+            if (!dataParam) {
+                document.body.innerHTML = '<h2 style="text-align:center;width:100%">QR Code Inválido ou sem dados.</h2>';
+                return;
+            }
+
+            try {
+                // Formato do JSON: { n: "Nome", v: "YYYY-MM-DD" }
+                const distData = JSON.parse(b64DecodeUnicode(dataParam));
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); 
+                
+                const [year, month, day] = distData.v.split('-');
+                const endDate = new Date(year, month - 1, day);
+                
+                const diffTime = endDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                const card = document.getElementById('cardResult');
+                const iconBox = document.getElementById('iconBox');
+                const iconSymbol = document.getElementById('iconSymbol');
+                const statusText = document.getElementById('statusText');
+                const distName = document.getElementById('distName');
+                const distVencimento = document.getElementById('distVencimento');
+                const distDias = document.getElementById('distDias');
+
+                distName.innerText = distData.n;
+                distVencimento.innerText = formatDate(distData.v);
+
+                if (diffDays < 0) {
+                    iconBox.className = 'icon-container icon-danger';
+                    iconSymbol.className = 'fa-solid fa-xmark';
+                    statusText.innerText = 'CONTRATO VENCIDO';
+                    statusText.className = 'status-vencido';
+                    distDias.innerText = 'Expirado';
+                    distDias.style.color = '#f87171';
+                } else {
+                    iconBox.className = 'icon-container icon-success';
+                    iconSymbol.className = 'fa-solid fa-check';
+                    statusText.innerText = 'CONTRATO ATIVO';
+                    statusText.className = 'status-ativo';
+                    distDias.innerText = diffDays + (diffDays === 1 ? ' dia' : ' dias');
+                }
+
+                card.style.display = 'block';
+
+            } catch (e) {
+                document.body.innerHTML = '<h2 style="text-align:center;width:100%">Erro ao ler dados do QR Code.</h2>';
+                console.error(e);
+            }
+        };
+    </script>
+</body>
+</html>

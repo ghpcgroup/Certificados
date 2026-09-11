@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento de Distribuidores</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-chart-network"></i>
+                    <span>DistriTrack</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-view="cadastro">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Cadastrar Novo</span>
+                </a>
+                <a href="#" class="nav-item" data-view="todos">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Todos Distribuidores</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <h1 id="pageTitle">Visão Geral do Monitoramento</h1>
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="Admin">
+                    <span>Admin</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                
+                <!-- View: Dashboard (Somente ativos) -->
+                <section id="view-dashboard" class="view-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon" style="color: #60a5fa;">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total de Distribuidores</h3>
+                                <p id="countTotal">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon pulse-glow" style="color: #4ade80;">
+                                <i class="fa-solid fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Dentro do Prazo</h3>
+                                <p id="countAtivos">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon" style="color: #f59e0b;">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Vencendo em breve</h3>
+                                <p id="countVencendo">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon" style="color: #f87171;">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Expirados</h3>
+                                <p id="countExpirados">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container glass-panel mt-20">
+                        <div class="table-header flex-between">
+                            <h2>Visão Geral de Contratos</h2>
+                            <div class="search-box">
+                                <i class="fa-solid fa-search"></i>
+                                <input type="text" id="searchDashboard" placeholder="Filtrar por nome/CNPJ...">
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Distribuidor</th>
+                                    <th>CNPJ/Documento</th>
+                                    <th>Início Contrato</th>
+                                    <th>Vencimento</th>
+                                    <th>Dias Restantes</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ativosTableBody">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- View: Cadastro -->
+                <section id="view-cadastro" class="view-section">
+                    <div class="form-container glass-panel">
+                        <h2>Cadastrar Distribuidor</h2>
+                        <p class="subtitle">Adicione um novo distribuidor e defina o prazo contratual.</p>
+                        
+                        <form id="distribuidorForm">
+                            <div class="form-group">
+                                <label for="nome">Nome / Razão Social</label>
+                                <input type="text" id="nome" required placeholder="Ex: Distribuidora Alpha Ltda">
+                            </div>
+                            <div class="form-group">
+                                <label for="documento">CNPJ</label>
+                                <input type="text" id="documento" required placeholder="00.000.000/0000-00">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dataInicio">Início do Contrato</label>
+                                    <input type="date" id="dataInicio" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dataFim">Fim do Contrato (Vencimento)</label>
+                                    <input type="date" id="dataFim" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary">Salvar Distribuidor <i class="fa-solid fa-arrow-right"></i></button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- View: Todos Distribuidores -->
+                <section id="view-todos" class="view-section">
+                    <div class="table-container glass-panel">
+                        <div class="table-header flex-between">
+                            <h2>Todos os Distribuidores</h2>
+                            <div class="search-box">
+                                <i class="fa-solid fa-search"></i>
+                                <input type="text" id="searchTodos" placeholder="Buscar distribuidor...">
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Distribuidor</th>
+                                    <th>CNPJ/Documento</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="todosTableBody">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal QR Code -->
+    <div id="qrModal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <button class="close-modal" onclick="closeQrModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 id="qrModalTitle">QR Code do Distribuidor</h2>
+            <p class="subtitle" style="text-align: center; margin-bottom: 20px;">
+                Aponte a câmera do celular para verificar o status
+            </p>
+            <div class="qr-container">
+                <div id="qrcode"></div>
+            </div>
+            <div class="qr-url-box" style="margin-top: 20px;">
+                <p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 8px;">
+                    Como você está usando o sistema localmente, o QR Code apontará para o arquivo local. Para funcionar perfeitamente em celulares, será necessário hospedar a pasta do projeto.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Custom Alert -->
+    <div id="customAlertModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 400px; text-align: center;">
+            <button class="close-modal" onclick="closeCustomAlert()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="customAlertIcon" class="modal-icon-large">
+                <i class="fa-solid fa-info"></i>
+            </div>
+            <h2 id="customAlertTitle" style="margin-bottom: 10px;">Atenção</h2>
+            <p id="customAlertMessage" class="subtitle" style="margin-bottom: 24px;">Mensagem aqui.</p>
+            <button class="btn-primary" onclick="closeCustomAlert()" id="customAlertBtn">OK</button>
+        </div>
+    </div>
+
+    <!-- Modal Custom Confirm -->
+    <div id="customConfirmModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 400px; text-align: center;">
+            <div class="modal-icon-large icon-danger">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h2 id="customConfirmTitle" style="margin-bottom: 10px;">Tem certeza?</h2>
+            <p id="customConfirmMessage" class="subtitle" style="margin-bottom: 24px;">Você deseja confirmar esta ação?</p>
+            <div class="form-row" style="gap: 12px; margin-bottom: 0;">
+                <button class="btn-primary" style="background: rgba(255,255,255,0.1); color: white; box-shadow: none;" onclick="closeCustomConfirm()">Cancelar</button>
+                <button class="btn-primary" style="background: linear-gradient(135deg, #f87171, #dc2626);" id="customConfirmBtn">Sim, Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
