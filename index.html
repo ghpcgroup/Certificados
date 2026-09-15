@@ -14,8 +14,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fa-solid fa-chart-network"></i>
-                    <span>DistriTrack</span>
+                    <img src="logo.png" alt="Logo AirTAC" style="height: 32px; width: auto; -webkit-text-fill-color: initial;">
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -99,10 +98,6 @@
                             <thead>
                                 <tr>
                                     <th>Distribuidor</th>
-                                    <th>CNPJ/Documento</th>
-                                    <th>Início Contrato</th>
-                                    <th>Vencimento</th>
-                                    <th>Dias Restantes</th>
                                     <th>Status</th>
                                     <th>Ações</th>
                                 </tr>
@@ -127,7 +122,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="documento">CNPJ</label>
-                                <input type="text" id="documento" required placeholder="00.000.000/0000-00">
+                                <input type="text" id="documento" required placeholder="00.000.000/0000-00" maxlength="18">
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
@@ -158,8 +153,6 @@
                             <thead>
                                 <tr>
                                     <th>Distribuidor</th>
-                                    <th>CNPJ/Documento</th>
-                                    <th>Vencimento</th>
                                     <th>Status</th>
                                     <th>Ações</th>
                                 </tr>
@@ -192,6 +185,58 @@
                 <p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 8px;">
                     Imprima este QR Code diretamente nos certificados. Quando escaneado, ele informará instantaneamente se o contrato do distribuidor está ativo ou vencido!
                 </p>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="btn-primary" onclick="downloadQrCode()" style="padding: 10px 20px; font-size: 14px; width: auto; display: inline-flex;">
+                        <i class="fa-solid fa-download"></i> Baixar QR Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes -->
+    <div id="detailsModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 500px;">
+            <button class="close-modal" onclick="closeDetailsModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 id="detailsModalTitle" style="margin-bottom: 24px;">Detalhes do Distribuidor</h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                    <span style="color: var(--text-muted); font-size: 13px;">Distribuidor</span>
+                    <strong id="detNome" style="display: block; font-size: 16px; margin-top: 4px;">-</strong>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                        <span style="color: var(--text-muted); font-size: 13px;">CNPJ / Documento</span>
+                        <strong id="detDoc" style="display: block; font-size: 15px; margin-top: 4px;">-</strong>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                        <span style="color: var(--text-muted); font-size: 13px;">Código do Certificado</span>
+                        <strong id="detCod" style="display: block; font-size: 15px; margin-top: 4px;">-</strong>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                        <span style="color: var(--text-muted); font-size: 13px;">Início do Contrato</span>
+                        <strong id="detInicio" style="display: block; font-size: 15px; margin-top: 4px;">-</strong>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                        <span style="color: var(--text-muted); font-size: 13px;">Vencimento</span>
+                        <strong id="detFim" style="display: block; font-size: 15px; margin-top: 4px;">-</strong>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                        <span style="color: var(--text-muted); font-size: 13px;">Dias Restantes</span>
+                        <strong id="detDias" style="display: block; font-size: 15px; margin-top: 4px;">-</strong>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                        <span style="color: var(--text-muted); font-size: 13px;">Status</span>
+                        <div id="detStatus" style="margin-top: 4px;">-</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

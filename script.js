@@ -84,10 +84,6 @@ function updateDashboard(filterText = '') {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${dist.nome}</strong></td>
-            <td>${dist.documento}</td>
-            <td>${formatDate(dist.dataInicio)}</td>
-            <td>${formatDate(dist.dataFim)}</td>
-            <td>${contractInfo.days < 0 ? 'Vencido' : contractInfo.days + ' dias'}</td>
             <td><span class="badge ${contractInfo.class}">${contractInfo.status}</span></td>
             <td>
                 <div class="action-buttons">
@@ -96,6 +92,9 @@ function updateDashboard(filterText = '') {
                     </button>
                     <button class="action-btn" onclick="deleteDistribuidor(${dist.id})" title="Remover">
                         <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button class="action-btn btn-view" onclick="openDetailsModal(${dist.id})" title="Ver Detalhes">
+                        Ver mais
                     </button>
                 </div>
             </td>
@@ -137,8 +136,6 @@ function renderTodosTable(filterText = '') {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${dist.nome}</strong></td>
-            <td>${dist.documento}</td>
-            <td>${formatDate(dist.dataFim)}</td>
             <td><span class="badge ${contractInfo.class}">${contractInfo.status}</span></td>
             <td>
                 <div class="action-buttons">
@@ -147,6 +144,9 @@ function renderTodosTable(filterText = '') {
                     </button>
                     <button class="action-btn" onclick="deleteDistribuidor(${dist.id})" title="Remover">
                         <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button class="action-btn btn-view" onclick="openDetailsModal(${dist.id})" title="Ver Detalhes">
+                        Ver mais
                     </button>
                 </div>
             </td>
@@ -169,12 +169,20 @@ document.getElementById('distribuidorForm').addEventListener('submit', (e) => {
         return;
     }
 
+    let counter = parseInt(localStorage.getItem('certificado_counter')) || 70;
+    const year = new Date().getFullYear();
+    const codigoCertificado = `AT-BR-${year}-${String(counter).padStart(3, '0')}`;
+    
+    // Atualiza o contador no local storage
+    localStorage.setItem('certificado_counter', counter + 1);
+
     const newDist = {
         id: Date.now(),
         nome,
         documento,
         dataInicio,
-        dataFim
+        dataFim,
+        codigoCertificado
     };
     
     distribuidores.push(newDist);
@@ -187,6 +195,23 @@ document.getElementById('distribuidorForm').addEventListener('submit', (e) => {
     
     // Go to dashboard
     navItems[0].click();
+});
+
+// Formata o CNPJ enquanto o usuário digita
+document.getElementById('documento').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+    
+    if (value.length > 14) {
+        value = value.slice(0, 14); // Limita a 14 dígitos numéricos
+    }
+
+    // Aplica a máscara: 00.000.000/0000-00
+    value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+    value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+    value = value.replace(/(\d{4})(\d)/, '$1-$2');
+
+    e.target.value = value;
 });
 
 // Delete Distribuidor
@@ -239,7 +264,8 @@ window.openQrModal = function(id) {
     // Montar os dados
     const dataObj = {
         n: dist.nome,
-        v: dist.dataFim
+        v: dist.dataFim,
+        c: dist.codigoCertificado || '-'
     };
     
     const encodedData = b64EncodeUnicode(JSON.stringify(dataObj));
@@ -321,3 +347,48 @@ document.getElementById('customConfirmBtn').addEventListener('click', () => {
     }
     closeCustomConfirm();
 });
+
+window.openDetailsModal = function(id) {
+    const dist = distribuidores.find(d => d.id === id);
+    if (!dist) return;
+
+    const contractInfo = getContractStatus(dist.dataFim);
+
+    document.getElementById('detNome').innerText = dist.nome;
+    document.getElementById('detDoc').innerText = dist.documento;
+    document.getElementById('detCod').innerText = dist.codigoCertificado || '-';
+    document.getElementById('detInicio').innerText = formatDate(dist.dataInicio);
+    document.getElementById('detFim').innerText = formatDate(dist.dataFim);
+    document.getElementById('detDias').innerText = contractInfo.days < 0 ? 'Vencido' : contractInfo.days + ' dias';
+    document.getElementById('detStatus').innerHTML = `<span class="badge ${contractInfo.class}">${contractInfo.status}</span>`;
+
+    document.getElementById('detailsModal').classList.add('active');
+}
+
+window.closeDetailsModal = function() {
+    document.getElementById('detailsModal').classList.remove('active');
+}
+
+window.downloadQrCode = function() {
+    const qrContainer = document.getElementById('qrcode');
+    const img = qrContainer.querySelector('img');
+    const canvas = qrContainer.querySelector('canvas');
+    let src = '';
+
+    if (img && img.src) {
+        src = img.src;
+    } else if (canvas) {
+        src = canvas.toDataURL("image/png");
+    }
+
+    if (src) {
+        const link = document.createElement('a');
+        link.href = src;
+        link.download = 'qrcode-distribuidor.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        showCustomAlert("Erro", "O QR Code ainda não foi gerado.", "warning");
+    }
+}

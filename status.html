@@ -129,6 +129,11 @@
         <div class="dist-name" id="distName">Nome da Distribuidora</div>
         
         <div class="info-box">
+            <span>Código do Certificado</span>
+            <strong id="distCodigo">--</strong>
+        </div>
+        
+        <div class="info-box">
             <span>Data de Vencimento</span>
             <strong id="distVencimento">--/--/----</strong>
         </div>
@@ -185,9 +190,14 @@
                 const distName = document.getElementById('distName');
                 const distVencimento = document.getElementById('distVencimento');
                 const distDias = document.getElementById('distDias');
+                const distCodigo = document.getElementById('distCodigo');
 
                 distName.innerText = distData.n;
                 distVencimento.innerText = formatDate(distData.v);
+                
+                if (distCodigo) {
+                    distCodigo.innerText = distData.c || 'Não definido';
+                }
 
                 if (diffDays < 0) {
                     iconBox.className = 'icon-container icon-danger';
